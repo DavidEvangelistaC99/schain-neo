@@ -1,0 +1,8 @@
+numpy
+scipy
+h5py
+matplotlib
+pyzmq
+fuzzywuzzy
+click
+digital_rf

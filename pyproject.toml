@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=69", "wheel", "numpy"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "schainpy"
+version = "0.1.0"
+description = "schainpy: Signal Chain radar processing library"
+readme = "README.md"
+requires-python = ">=3.14"
+license = { text = "BSD-3-Clause" }
+
+authors = [
+    { name = "Jicamarca Radio Observatory", email = "jro-developers@jro.igp.gob.pe" }
+]
+
+dependencies = [
+    "numpy",
+    "scipy",
+    "h5py",
+    "matplotlib",
+    "pyzmq",
+    "fuzzywuzzy",
+    "click",
+    "digital_rf"
+]
+
+[project.scripts]
+schain = "schainpy.cli.cli:main"
+
+[tool.setuptools]
+packages = ["schainpy"]
