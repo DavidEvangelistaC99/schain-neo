@@ -13,3 +13,6 @@ We strongly recommend to use an virtual environment like virtualenv or anaconda.
 pip install --upgrade pip setuptools wheel
 pip install -e .
 ```
+
+## Requirements
+- Python 3.14+
