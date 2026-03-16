@@ -3940,6 +3940,7 @@ class Decoder(Operation):
         raise NotImplementedError
 
     def __convolutionInTime(self, data):
+        print("Conv in Profile")
 
         code = self.code[self.__profIndex]
         for i in range(self.__nChannels):
@@ -3953,7 +3954,8 @@ class Decoder(Operation):
         return self.datadecTime
 
     def __convolutionByBlockInTime(self, data):
-
+        
+        print("Conv in Block")
         repetitions = int(self.__nProfiles / self.nCode)
         junk = numpy.lib.stride_tricks.as_strided(self.code, (repetitions, self.code.size), (0, self.code.itemsize))
         junk = junk.flatten()
