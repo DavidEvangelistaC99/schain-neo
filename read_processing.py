@@ -3,32 +3,21 @@
 import os, sys
 import datetime
 import time
-from schainpy.controller import Project
 import numpy as np
 import matplotlib.pyplot as plt
-
-desc = "Processing Test By Profiles"
+from schainpy.controller import Project
 
 path = '/home/david/Documents/DATA/CHIRP@2025-10-07T19-57-06/rawdata/'
 
-## REVISION ##
-## 1 ##
 controllerObj = Project()
-controllerObj.setup(id = '192', name='Test_USRP', description="Spectra Test Processing")
-
-N = int(500.0)
+controllerObj.setup(id = '001', name='Test_001', description='Processing Test')
 
 #######################################################################
 ############################ READING UNIT #############################
 #######################################################################
 
 # Working only Read Unit
-## 2 ##
 readUnitConfObj = controllerObj.addReadUnit(datatype='DigitalRFReader',
-                                            # Digital RF Data TFM 5 MHz was found from 2026-01-27 15:36:14 to 2026-01-27 15:43:55 (Time: 88.50s)
-                                            # Digital RF Data HYO 2 MHz was found from 2025-12-11 09:47:12 to 2025-12-11 09:53:04 (Time: 38.15s)
-                                            # TFM 1 min of data - 11.5 s
-                                            # HYO 1 min of data - 6.5 s
                                             path=path,
                                             startDate='2025/01/01',
                                             endDate='2025/12/31',
@@ -37,7 +26,7 @@ readUnitConfObj = controllerObj.addReadUnit(datatype='DigitalRFReader',
                                             ippKm = 60,
                                             walk=1,
                                             getByBlock = 1,
-                                            nProfileBlocks = N,
+                                            nProfileBlocks = 500,
                                             )
 
 controllerObj.start()
