@@ -1,4 +1,4 @@
-# TEST_BOLITA_COBRE_4
+###---Spectra Processing Test---###
 
 import modFreq as modf
 
@@ -30,7 +30,7 @@ dBmin = 0
 dBmax = 120
 xmin = '0'
 xmax = '24'
-ymin = '0'
+ymin = '-50'
 ymax = '60'
 
 #######################################################################
