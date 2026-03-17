@@ -20,8 +20,6 @@ try:
 except:
     log.warning('Missing Faraday fortran libs')
 
-import matplotlib.pyplot as plt
-
 class VoltageProc(ProcessingUnit):
 
     def __init__(self):
@@ -3950,10 +3948,6 @@ class Decoder(Operation):
             #print(numpy.shape(data[i,:]))
             #print(numpy.shape(code))
             #exit(1)
-
-            # t = [j for j in range(len(data[i,:]))]
-            # plt.plot(t,data[i,:])
-            # plt.show()
             self.datadecTime[i,:] = numpy.correlate(data[i,:], code, mode='full')[self.nBaud-1:]
 
         return self.datadecTime
