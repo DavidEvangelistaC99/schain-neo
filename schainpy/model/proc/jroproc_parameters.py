@@ -1578,7 +1578,7 @@ class Oblique_Gauss_Fit(Operation):
         pwcode = 1
 
         if dataOut.flagDecodeData:
-            pwcode = numpy.sum(dataOut.code[0]**2)
+            pwcode = numpy.sum(numpy.abs(dataOut.code[0])**2)
         #normFactor = min(self.nFFTPoints,self.nProfiles)*self.nIncohInt*self.nCohInt*pwcode*self.windowOfFilter
         normFactor = dataOut.nProfiles * dataOut.nIncohInt * dataOut.nCohInt * pwcode * dataOut.windowOfFilter
         factor = normFactor
