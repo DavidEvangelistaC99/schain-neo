@@ -9,8 +9,7 @@ import matplotlib.pyplot as plt
 
 desc = "Processing Test By Profiles"
 
-path = '/home/david/Documents/DATA_2/CHIRP_TFM@2026-01-27T20-36-02/rawdata/'
-# path = '/home/david/Documents/DATA_2/HYO@2025-12-11T14-46-59/rawdata/'
+path = '/home/david/Documents/DATA/CHIRP@2025-10-07T19-57-06/rawdata/'
 
 ## REVISION ##
 ## 1 ##
@@ -31,8 +30,8 @@ readUnitConfObj = controllerObj.addReadUnit(datatype='DigitalRFReader',
                                             # TFM 1 min of data - 11.5 s
                                             # HYO 1 min of data - 6.5 s
                                             path=path,
-                                            startDate='2026/01/01',
-                                            endDate='2026/12/31',
+                                            startDate='2025/01/01',
+                                            endDate='2025/12/31',
                                             startTime='00:00:00',
                                             endTime='23:59:59',
                                             ippKm = 60,

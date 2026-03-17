@@ -26,11 +26,11 @@ controllerObj.setup(id = '192', name='Test_USRP', description="Hola Mundo")
 
 # Parametros de graficos
 ## 2 ##
-dBmin = 0
+dBmin = -90
 dBmax = 120
 xmin = '0'
 xmax = '24'
-ymin = '-50'
+ymin = '0'
 ymax = '60'
 
 #######################################################################
@@ -84,7 +84,7 @@ sr_rx = 2.5e6
 fc = 0.0e6
 bw = 1.0e6
       
-chirp_tx_1, _ = modf.chirpMod(A, ipp, dc, sr_rx, sr_rx, fc, bw, t_d = 0, window = 'B', mode_f = 0)
+_, chirp_tx_1 = modf.chirpMod(A, ipp, dc, sr_rx, sr_rx, fc, bw, t_d = 0, window = 'B', mode_f = 0)
 # chirp_tx_1 = modf.chirpModUnion(ipp, sr_rx, sr_rx, A, A, 14.6, 0.4, 0.75e6, 0.0, 1.5e6, 0.0, 'B', 'R')
 
 code_ = chirp_tx_1
@@ -112,8 +112,8 @@ procUnitConfObjSousySpectra.addParameter(name='nProfiles', value='500', format='
 
 # Remocion DC
 
-opObj13 = procUnitConfObjSousySpectra.addOperation(name='removeDC')
-opObj13.addParameter(name='mode', value='2', format='int')
+# opObj13 = procUnitConfObjSousySpectra.addOperation(name='removeDC')
+# opObj13.addParameter(name='mode', value='2', format='int')
 
 #######################################################################
 ################## PLOTEO DOMINIO DE LA FRECUENCIA ####################
