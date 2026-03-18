@@ -278,6 +278,9 @@ class ProcUnitConf(ConfBase):
         '''
         
         return self.object.call(**self.getKwargs())
+        # self.object   ->  indica el objeto creado
+        # .call         ->  
+        # **            -> desempaqueta un diccionario, 
 
 
 class ReadUnitConf(ProcUnitConf):
