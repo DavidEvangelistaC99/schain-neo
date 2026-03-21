@@ -320,6 +320,7 @@ class ReadUnitConf(ProcUnitConf):
         self.datatype = datatype
         self.err_queue = err_queue        
         
+        # addParameter: class ConfBase
         self.addParameter(name='path', value=path)
         self.addParameter(name='startDate', value=startDate)
         self.addParameter(name='endDate', value=endDate)
@@ -336,12 +337,15 @@ class Project(Process):
     """API to create signal chain projects"""
 
     ELEMENTNAME = 'Project'
-
+    
+    # Constructor: ejecucion automatica al crear objeto Project
     def __init__(self, name=''):
 
+        # LLamada de inicio para el constructor del objeto Project
         Process.__init__(self)
         self.id = '1'
         if name:
+            # Nombre del proyecto 'Process name'
             self.name = '{} ({})'.format(Process.__name__, name)
         self.filename = None
         self.description = None
@@ -395,10 +399,16 @@ class Project(Process):
         self.alarm = alarm
         if name:
             self.name = '{} ({})'.format(Process.__name__, name)
-
+    
+    # kwargs (Key Word Arguments) es un diccionario automatico 
+    # update(a=1, b=2) -> {'a': 1, 'b': 2}
     def update(self, **kwargs):
-
+        
+        # Recorrido de cada par clave-valor
         for key, value in kwargs.items():
+            # Asignacion de atributos dinamicamente
+            # self.a = 1
+            # self.b = 2
             setattr(self, key, value)
 
     def clone(self):
@@ -411,6 +421,8 @@ class Project(Process):
 
         return p
 
+    # Agrega unidad de lectura al Proyecto
+    # Configuracion de la unidad de lectura dentro del Proyecto
     def addReadUnit(self, id=None, datatype=None, name=None, **kwargs):
 
         '''
@@ -422,6 +434,8 @@ class Project(Process):
             idReadUnit = str(id)
 
         conf = ReadUnitConf()
+        
+        # self.id: id del proyecto padre
         conf.setup(self.id, idReadUnit, name, datatype, self.err_queue, **kwargs)
         self.configurations[conf.id] = conf
         
@@ -563,6 +577,8 @@ class Project(Process):
         keys = list(self.configurations.keys())
         keys.sort()
         for key in keys:
+            # Read Unit Conf or Process Unit Conf 
+            
             conf = self.configurations[key]
             conf.createObjects()
             if 'Reader' in str(conf):

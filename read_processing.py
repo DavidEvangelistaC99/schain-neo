@@ -17,6 +17,7 @@ controllerObj.setup(id = '001', name='Test_001', description='Processing Test')
 #######################################################################
 
 # Working only Read Unit
+# Parameters send to ReadUnitConf()
 readUnitConfObj = controllerObj.addReadUnit(datatype='DigitalRFReader',
                                             path=path,
                                             startDate='2025/01/01',
