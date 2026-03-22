@@ -10,14 +10,16 @@ from schainpy.controller import Project
 path = '/home/david/Documents/DATA/CHIRP@2025-10-07T19-57-06/rawdata/'
 
 controllerObj = Project()
+# -> Project.__init__()
+
 controllerObj.setup(id = '001', name='Test_001', description='Processing Test')
+# -> Project.setup()
 
 #######################################################################
 ############################ READING UNIT #############################
 #######################################################################
 
 # Working only Read Unit
-# Parameters send to ReadUnitConf()
 readUnitConfObj = controllerObj.addReadUnit(datatype='DigitalRFReader',
                                             path=path,
                                             startDate='2025/01/01',
@@ -29,5 +31,9 @@ readUnitConfObj = controllerObj.addReadUnit(datatype='DigitalRFReader',
                                             getByBlock = 1,
                                             nProfileBlocks = 500,
                                             )
+# -> Project.addReadUnit()
+# Parameters send to ReadUnitConf()
+# ReadUnitConf.setup() 
 
 controllerObj.start()
+# -> Project.run()

@@ -286,7 +286,7 @@ class ProcUnitConf(ConfBase):
 class ReadUnitConf(ProcUnitConf):
 
     ELEMENTNAME = 'ReadUnit'
-
+    
     def __init__(self):
 
         self.id = None
@@ -299,6 +299,8 @@ class ReadUnitConf(ProcUnitConf):
     def setup(self, project_id, id, name, datatype, err_queue, path='', startDate='', endDate='',
               startTime='', endTime='', server=None, topic='', **kwargs):
         
+        # Extraccion del tipo de dato
+        # datatype = 'DigitalRFReader' -> datatype = 'DigitalRF'
         if datatype == None and name == None:
             raise ValueError('datatype or name should be defined')
         if name == None:
@@ -338,6 +340,114 @@ class Project(Process):
 
     ELEMENTNAME = 'Project'
     
+    ## 1 ##
+    # Constructor: ejecucion automatica al crear objeto Project
+    def __init__(self, name=''):
+
+        # LLamada de inicio para el constructor del objeto Project
+        Process.__init__(self)
+        self.id = '1'
+        if name:
+            # Nombre del proyecto 'Process name'
+            self.name = '{} ({})'.format(Process.__name__, name)
+        self.filename = None
+        self.description = None
+        self.email = None
+        self.alarm = []
+
+        # Diccionario de objetos de configuracion de unidades de lectura y procesamiento
+        self.configurations = {}
+        # self.err_queue = Queue()
+        self.err_queue = None
+        self.started = False
+
+    def getNewId(self):
+
+        idList = list(self.configurations.keys())
+        id = int(self.id) * 10
+
+        while True:
+            id += 1
+
+            if str(id) in idList:
+                continue
+
+            break
+
+        return str(id)
+
+    def updateId(self, new_id):
+
+        self.id = str(new_id)
+
+        keyList = list(self.configurations.keys())
+        keyList.sort()
+
+        n = 1
+        new_confs = {}
+
+        for procKey in keyList:
+
+            conf = self.configurations[procKey]
+            idProcUnit = str(int(self.id) * 10 + n)
+            conf.updateId(idProcUnit)
+            new_confs[idProcUnit] = conf
+            n += 1
+
+        self.configurations = new_confs
+
+    ## 2 ##
+    def setup(self, id=1, name='', description='', email=None, alarm=[]):
+
+        self.id = str(id)
+        self.description = description 
+        self.email = email
+        self.alarm = alarm
+        if name:
+            self.name = '{} ({})'.format(Process.__name__, name)
+    
+    # kwargs (Key Word Arguments) es un diccionario automatico 
+    # update(a=1, b=2) -> {'a': 1, 'b': 2}
+    def update(self, **kwargs):
+        
+        # Recorrido de cada par clave-valor
+        for key, value in kwargs.items():
+            # Asignacion de atributos dinamicamente
+            # self.a = 1
+            # self.b = 2
+            setattr(self, key, value)
+
+    def clone(self):
+
+        p = Project()
+        p.id = self.id
+        p.name = self.name
+        p.description = self.description
+        p.configurations = self.configurations.copy()
+
+        return p
+
+    ## 3 ##
+    # Agrega unidad de lectura al Proyecto
+    # Configuracion de la unidad de lectura dentro del Proyecto
+    def addReadUnit(self, id=None, datatype=None, name=None, **kwargs):
+
+        '''
+        '''
+
+        if id is None:
+            idReadUnit = self.getNewId()
+        else:
+            idReadUnit = str(id)
+
+        conf = ReadUnitConf()
+        
+        # self.id: id del proyecto padreclass Project(Process):
+    """API to create signal chain projects"""
+
+    ELEMENTNAME = 'Project'
+    
+    ## 1 ##
     # Constructor: ejecucion automatica al crear objeto Project
     def __init__(self, name=''):
 
@@ -391,6 +501,7 @@ class Project(Process):
 
         self.configurations = new_confs
 
+    ## 2 ##
     def setup(self, id=1, name='', description='', email=None, alarm=[]):
 
         self.id = str(id)
@@ -421,6 +532,7 @@ class Project(Process):
 
         return p
 
+    ## 3 ##
     # Agrega unidad de lectura al Proyecto
     # Configuracion de la unidad de lectura dentro del Proyecto
     def addReadUnit(self, id=None, datatype=None, name=None, **kwargs):
@@ -437,6 +549,267 @@ class Project(Process):
         
         # self.id: id del proyecto padre
         conf.setup(self.id, idReadUnit, name, datatype, self.err_queue, **kwargs)
+        self.configurations[conf.id] = conf
+        
+        return conf
+
+    def addProcUnit(self, id=None, inputId='0', datatype=None, name=None):
+
+        '''
+        '''
+
+        if id is None:
+            idProcUnit = self.getNewId()
+        else:
+            idProcUnit = id
+        
+        conf = ProcUnitConf()
+        conf.setup(self.id, idProcUnit, name, datatype, inputId, self.err_queue)
+        self.configurations[conf.id] = conf
+
+        return conf
+
+    def removeProcUnit(self, id):
+
+        if id in self.configurations:
+            self.configurations.pop(id)
+
+    def getReadUnit(self):
+
+        for obj in list(self.configurations.values()):
+            if obj.ELEMENTNAME == 'ReadUnit':
+                return obj
+
+        return None
+
+    def getProcUnit(self, id):
+
+        return self.configurations[id]
+
+    def getUnits(self):
+
+        keys = list(self.configurations)
+        keys.sort()
+
+        for key in keys:
+            yield self.configurations[key]
+
+    def updateUnit(self, id, **kwargs):
+
+        conf = self.configurations[id].update(**kwargs)
+    
+    def makeXml(self):
+
+        xml = Element('Project')
+        xml.set('id', str(self.id))
+        xml.set('name', self.name)
+        xml.set('description', self.description)
+
+        for conf in self.configurations.values():
+            conf.makeXml(xml)
+
+        self.xml = xml
+
+    def writeXml(self, filename=None):
+
+        if filename == None:
+            if self.filename:
+                filename = self.filename
+            else:
+                filename = 'schain.xml'
+
+        if not filename:
+            print('filename has not been defined. Use setFilename(filename) for do it.')
+            return 0
+
+        abs_file = os.path.abspath(filename)
+
+        if not os.access(os.path.dirname(abs_file), os.W_OK):
+            print('No write permission on %s' % os.path.dirname(abs_file))
+            return 0
+
+        if os.path.isfile(abs_file) and not(os.access(abs_file, os.W_OK)):
+            print('File %s already exists and it could not be overwriten' % abs_file)
+            return 0
+
+        self.makeXml()
+
+        ElementTree(self.xml).write(abs_file, method='xml')
+
+        self.filename = abs_file
+
+        return 1
+
+    def readXml(self, filename):
+
+        abs_file = os.path.abspath(filename)
+
+        self.configurations = {}
+
+        try:
+            self.xml = ElementTree().parse(abs_file)
+        except:
+            log.error('Error reading %s, verify file format' % filename)
+            return 0
+
+        self.id = self.xml.get('id')
+        self.name = self.xml.get('name')
+        self.description = self.xml.get('description')
+
+        for element in self.xml:
+            if element.tag == 'ReadUnit':
+                conf = ReadUnitConf()
+                conf.readXml(element, self.id, self.err_queue)
+                self.configurations[conf.id] = conf
+            elif element.tag == 'ProcUnit':
+                conf = ProcUnitConf()
+                input_proc = self.configurations[element.get('inputId')]
+                conf.readXml(element, self.id, self.err_queue)
+                self.configurations[conf.id] = conf
+
+        self.filename = abs_file
+        
+        return 1
+
+    def __str__(self):
+
+        text = '\nProject[id=%s, name=%s, description=%s]\n\n' % (
+            self.id,
+            self.name,
+            self.description,
+            )
+
+        for conf in self.configurations.values():
+            text += '{}'.format(conf)
+
+        return text
+
+    def createObjects(self):
+
+        keys = list(self.configurations.keys())
+        keys.sort()
+        for key in keys:
+
+            # conf contiene objetos de ReadUnitConf o ProcessUnitConf 
+            conf = self.configurations[key]
+            conf.createObjects()
+            if 'Reader' in str(conf):
+                # Crea el objeto ejecutable
+                reader = conf.object
+            else:
+                # Conectar el modulo con la fuente de datos
+                conf.object.reader = reader
+            if conf.inputId is not None:
+                if isinstance(conf.inputId, list):
+                    conf.object.setInput([self.configurations[x].object for x in conf.inputId])
+                else:
+                    conf.object.setInput([self.configurations[conf.inputId].object])
+
+    def monitor(self):
+
+        t = Thread(target=self._monitor, args=(self.err_queue, self.ctx))
+        t.start()
+    
+    def _monitor(self, queue, ctx):
+
+        import socket
+        
+        procs = 0
+        err_msg = ''
+        
+        while True:
+            msg = queue.get()
+            if '#_start_#' in msg:
+                procs += 1
+            elif '#_end_#' in msg:
+                procs -= 1
+            else:
+                err_msg = msg
+            
+            if procs == 0 or 'Traceback' in err_msg:                
+                break
+            time.sleep(0.1)
+        
+        if '|' in err_msg:
+            name, err = err_msg.split('|')
+            if 'SchainWarning' in err:
+                log.warning(err.split('SchainWarning:')[-1].split('\n')[0].strip(), name)
+            elif 'SchainError' in err:
+                log.error(err.split('SchainError:')[-1].split('\n')[0].strip(), name)
+            else:
+                log.error(err, name)
+        else:            
+            name, err = self.name, err_msg
+        
+        time.sleep(1)
+            
+        ctx.term()
+
+        message = ''.join(err)
+
+        if err_msg:
+            subject = 'Schain v%s: Error running %s\n' % (
+                schainpy.__version__, self.name)
+
+            subtitle = 'Hostname: %s\n' % socket.gethostbyname(
+                socket.gethostname())
+            subtitle += 'Working directory: %s\n' % os.path.abspath('./')
+            subtitle += 'Configuration file: %s\n' % self.filename
+            subtitle += 'Time: %s\n' % str(datetime.datetime.now())
+
+            readUnitConfObj = self.getReadUnit()
+            if readUnitConfObj:
+                subtitle += '\nInput parameters:\n'
+                subtitle += '[Data path = %s]\n' % readUnitConfObj.parameters['path']
+                subtitle += '[Start date = %s]\n' % readUnitConfObj.parameters['startDate']
+                subtitle += '[End date = %s]\n' % readUnitConfObj.parameters['endDate']
+                subtitle += '[Start time = %s]\n' % readUnitConfObj.parameters['startTime']
+                subtitle += '[End time = %s]\n' % readUnitConfObj.parameters['endTime']
+
+            a = Alarm(
+                modes=self.alarm,
+                email=self.email,
+                message=message,
+                subject=subject,
+                subtitle=subtitle,
+                filename=self.filename
+            )
+
+            a.start()
+
+    def setFilename(self, filename):
+
+        self.filename = filename
+
+    def runProcs(self):
+
+        err = False
+        n = len(self.configurations)
+        
+        while not err:
+            for conf in self.getUnits():
+                ok = conf.run()                
+                if ok == 'Error':
+                    n -= 1
+                    continue
+                elif not ok:
+                    break
+            if n == 0:
+                err = True
+    
+    def run(self):
+
+        log.success('\nStarting Project {} [id={}]'.format(self.name, self.id), tag='')
+        self.started = True
+        self.start_time = time.time()        
+        self.createObjects()
+        self.runProcs()
+        log.success('{} Done (Time: {:4.2f}s)'.format(
+            self.name,
+            time.time() - self.start_time), '')
+        conf.setup(self.id, idReadUnit, name, datatype, self.err_queue, **kwargs)
+
+        # Guarda una configuracion de lectura en el diccionario
         self.configurations[conf.id] = conf
         
         return conf
@@ -682,7 +1055,7 @@ class Project(Process):
                     break
             if n == 0:
                 err = True
-        
+    
     def run(self):
 
         log.success('\nStarting Project {} [id={}]'.format(self.name, self.id), tag='')
